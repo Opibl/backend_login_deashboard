@@ -209,20 +209,24 @@ app.get('/dashboard', auth, (req, res) => {
 })
 
 
-// 📝 REGISTER
+// 📝 REGISTER (PUBLIC)
 app.post('/register', async (req, res) => {
-  const { name, email, password } = req.body
+  const { email, password } = req.body
 
   if (!email || !password) {
     return res.status(400).json({ message: 'Email and password required' })
   }
 
   // 🔎 Check if user already exists
-  const { data: existingUser } = await supabase
+  const { data: existingUser, error: checkError } = await supabase
     .from('users')
     .select('id')
     .eq('email', email)
-    .single()
+    .maybeSingle()
+
+  if (checkError) {
+    return res.status(500).json({ message: checkError.message })
+  }
 
   if (existingUser) {
     return res.status(409).json({ message: 'User already exists' })
@@ -235,10 +239,9 @@ app.post('/register', async (req, res) => {
   const { data, error } = await supabase
     .from('users')
     .insert({
-      name,               // opcional si existe la columna
       email,
       password: hashedPassword,
-      role: 'user',       // rol por defecto
+      role: 'user',
     })
     .select()
     .single()
@@ -247,8 +250,8 @@ app.post('/register', async (req, res) => {
     return res.status(400).json({ message: error.message })
   }
 
-  // ✅ Registro exitoso
-  res.status(201).json({
+  // ✅ Success
+  return res.status(201).json({
     message: 'User registered successfully',
     user: {
       id: data.id,
@@ -256,32 +259,6 @@ app.post('/register', async (req, res) => {
       role: data.role,
     },
   })
-
-  /* =====================================
-     🔁 AUTO LOGIN (OPCIONAL)
-     Si lo quieres, dime y lo activamos
-  ====================================== */
-
-  /*
-  const token = jwt.sign(
-    {
-      userId: data.id,
-      email: data.email,
-      role: data.role,
-    },
-    JWT_SECRET,
-    { expiresIn: '1h' }
-  )
-
-  res.status(201).json({
-    token,
-    user: {
-      id: data.id,
-      email: data.email,
-      role: data.role,
-    },
-  })
-  */
 })
 
 

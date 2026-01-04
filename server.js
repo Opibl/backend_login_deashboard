@@ -209,58 +209,6 @@ app.get('/dashboard', auth, (req, res) => {
 })
 
 
-// 📝 REGISTER (PUBLIC)
-app.post('/register', async (req, res) => {
-  const { email, password } = req.body
-
-  if (!email || !password) {
-    return res.status(400).json({ message: 'Email and password required' })
-  }
-
-  // 🔎 Check if user already exists
-  const { data: existingUser, error: checkError } = await supabase
-    .from('users')
-    .select('id')
-    .eq('email', email)
-    .maybeSingle()
-
-  if (checkError) {
-    return res.status(500).json({ message: checkError.message })
-  }
-
-  if (existingUser) {
-    return res.status(409).json({ message: 'User already exists' })
-  }
-
-  // 🔐 Hash password
-  const hashedPassword = await bcrypt.hash(password, 10)
-
-  // ➕ Create user
-  const { data, error } = await supabase
-    .from('users')
-    .insert({
-      email,
-      password: hashedPassword,
-      role: 'user',
-    })
-    .select()
-    .single()
-
-  if (error) {
-    return res.status(400).json({ message: error.message })
-  }
-
-  // ✅ Success
-  return res.status(201).json({
-    message: 'User registered successfully',
-    user: {
-      id: data.id,
-      email: data.email,
-      role: data.role,
-    },
-  })
-})
-
 
 /* ======================================================
    SERVER

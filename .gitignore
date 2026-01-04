@@ -1,0 +1,74 @@
+# =========================
+# Node / NPM
+# =========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# Build outputs
+# =========================
+dist/
+build/
+out/
+
+# =========================
+# Vite
+# =========================
+.vite/
+
+# =========================
+# Environment variables
+# =========================
+.env
+.env.local
+.env.development
+.env.production
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+
+# =========================
+# OS files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# IDEs / Editors
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# Testing
+# =========================
+coverage/
+.nyc_output/
+
+# =========================
+# Cache
+# =========================
+.cache/
+.eslintcache
+
+# =========================
+# Supabase
+# =========================
+supabase/.temp/
+supabase/.env
+
+# =========================
+# Optional: lock files
+# (descomenta si no quieres versionarlos)
+# =========================
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml

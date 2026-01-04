@@ -208,6 +208,83 @@ app.get('/dashboard', auth, (req, res) => {
   })
 })
 
+
+// 📝 REGISTER
+app.post('/register', async (req, res) => {
+  const { name, email, password } = req.body
+
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email and password required' })
+  }
+
+  // 🔎 Check if user already exists
+  const { data: existingUser } = await supabase
+    .from('users')
+    .select('id')
+    .eq('email', email)
+    .single()
+
+  if (existingUser) {
+    return res.status(409).json({ message: 'User already exists' })
+  }
+
+  // 🔐 Hash password
+  const hashedPassword = await bcrypt.hash(password, 10)
+
+  // ➕ Create user
+  const { data, error } = await supabase
+    .from('users')
+    .insert({
+      name,               // opcional si existe la columna
+      email,
+      password: hashedPassword,
+      role: 'user',       // rol por defecto
+    })
+    .select()
+    .single()
+
+  if (error) {
+    return res.status(400).json({ message: error.message })
+  }
+
+  // ✅ Registro exitoso
+  res.status(201).json({
+    message: 'User registered successfully',
+    user: {
+      id: data.id,
+      email: data.email,
+      role: data.role,
+    },
+  })
+
+  /* =====================================
+     🔁 AUTO LOGIN (OPCIONAL)
+     Si lo quieres, dime y lo activamos
+  ====================================== */
+
+  /*
+  const token = jwt.sign(
+    {
+      userId: data.id,
+      email: data.email,
+      role: data.role,
+    },
+    JWT_SECRET,
+    { expiresIn: '1h' }
+  )
+
+  res.status(201).json({
+    token,
+    user: {
+      id: data.id,
+      email: data.email,
+      role: data.role,
+    },
+  })
+  */
+})
+
+
 /* ======================================================
    SERVER
 ====================================================== */
